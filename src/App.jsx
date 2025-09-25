@@ -5,8 +5,9 @@ import Details from "./components/Details/Details";
 
 function App() {
     const [users, setUsers] = useState([]);
-    const [userId, setUserId] = useState();
-    const [userDetails, setUserDetails] = useState();
+    const [userId, setUserId] = useState(null);
+    const [userDetails, setUserDetails] = useState(null);
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         async function getUsers() {
@@ -22,9 +23,16 @@ function App() {
         if (!userId) return;
 
         async function getCurrentUser() {
-            const response = await fetch(`https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/${userId}.json`);
-            const data = await response.json();
-            setUserDetails(data);
+            setLoading(true);
+            setUserDetails(null);
+
+            try {
+                const response = await fetch(`https://raw.githubusercontent.com/netology-code/ra16-homeworks/master/hooks-context/use-effect/data/${userId}.json`);
+                const data = await response.json();
+                setUserDetails(data);
+            } finally{
+                setLoading(false)
+            }
         }
 
         getCurrentUser();
@@ -37,7 +45,8 @@ function App() {
     return (
         <div className="app">
             <List users={users} onClick={handleClick} />
-            {userDetails && (<Details userDetails={userDetails} />)}
+            {loading && <p>Loading...</p>}
+            {!loading && userDetails && (<Details userDetails={userDetails} />)}
         </div>
     )
 }
